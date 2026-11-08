@@ -1,0 +1,20 @@
+# dépendances
+node_modules
+
+# build Next.js
+.next
+out
+next-env.d.ts
+*.tsbuildinfo
+
+# secrets et données locales
+.env
+.env*.local
+.data
+
+# Vercel
+.vercel
+
+# divers
+.DS_Store
+npm-debug.log*
