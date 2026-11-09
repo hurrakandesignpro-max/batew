@@ -1,34 +1,10 @@
-import type { SiteTexts } from "./texts";
-
-export type { SiteTexts };
-
 export type QuestionType = "single" | "multi" | "duel" | "text";
 
-/** Thème = palette + fond + sol (vagues ou collines). */
-export type ThemeId = "sea" | "sakura" | "sunset" | "night";
-/** Ce qui flotte à l'écran. "auto" = celui du thème. */
-export type ParticleKind =
-  | "auto"
-  | "bubbles"
-  | "petals"
-  | "stars"
-  | "fireflies"
-  | "none";
-export type Density = "light" | "normal" | "lots";
-export type TreeMode = "none" | "left" | "right" | "both";
-
-/** Apparence d'une page (l'accueil, ou une escale). */
-export interface PageStyle {
-  theme: ThemeId;
-  particles: ParticleKind;
-  density: Density;
-  /** Arbres de sakura sur le côté de la page. */
-  trees: TreeMode;
-  /** Emoji mascotte (haut de l'accueil, barre de progression, fin d'escale). Vide = celui du thème. */
-  mascot: string;
-  /** Couleur des boutons et sélections, au format #rrggbb. Vide = celle du thème. */
-  accent: string;
-}
+export type ThemeId = "sea" | "sakura" | "night" | "sunset";
+export type DecorLevel = "calm" | "normal" | "party";
+/** "inherit" = reprendre le réglage du site. */
+export type PanelTheme = ThemeId | "inherit";
+export type PanelDecor = DecorLevel | "inherit";
 
 export interface Option {
   id: string;
@@ -54,13 +30,37 @@ export interface Panel {
   /** Un panel non publié reste un brouillon invisible sur le site. */
   published: boolean;
   questions: Question[];
-  /** Apparence propre à cette escale. */
-  style: PageStyle;
-  /** Petit mot affiché au-dessus de la première question. */
-  intro?: string;
-  /** Titre / message de fin propres à cette escale (sinon ceux des Textes). */
-  doneTitle?: string;
-  doneMessage?: string;
+  /** Apparence de la page de cette escale. */
+  theme: PanelTheme;
+  decor: PanelDecor;
+  /** Couleur des boutons (#rrggbb), vide = celle du site. */
+  accent: string;
+  /** Emoji de la barre de progression, vide = celui du thème. */
+  marker: string;
+}
+
+/** Tous les petits textes de l'interface publique. */
+export interface SiteTexts {
+  homeTitle: string;
+  homeEmpty: string;
+  chipOne: string;
+  chipMany: string;
+  chipDone: string;
+  backLink: string;
+  progress: string;
+  multiHint: string;
+  duelOr: string;
+  textPlaceholder: string;
+  btnBack: string;
+  btnNext: string;
+  btnFinish: string;
+  btnSending: string;
+  noQuestions: string;
+  errorGeneric: string;
+  errorNetwork: string;
+  doneTitle: string;
+  doneMessage: string;
+  doneButton: string;
 }
 
 export interface SiteConfig {
@@ -68,10 +68,13 @@ export interface SiteConfig {
   greeting: string;
   introMessage: string;
   outroMessage: string;
-  /** Tous les autres petits textes du site. */
+  /** Emoji de l'accueil, vide = celui du thème. */
+  heroEmoji: string;
+  theme: ThemeId;
+  decor: DecorLevel;
+  /** Couleur des boutons (#rrggbb), vide = celle du thème. */
+  accent: string;
   texts: SiteTexts;
-  /** Apparence de l'accueil (et de la page 404). */
-  homeStyle: PageStyle;
 }
 
 export interface AppData {

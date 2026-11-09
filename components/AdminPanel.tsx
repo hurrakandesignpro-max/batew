@@ -2,21 +2,31 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import StyleEditor from "@/components/StyleEditor";
-import TextsEditor from "@/components/TextsEditor";
-import { DEFAULT_STYLE } from "@/lib/style";
+import {
+  DECOR_IDS,
+  DECOR_LABELS,
+  DEFAULT_TEXTS,
+  TEXT_FIELDS,
+  THEME_IDS,
+  THEMES,
+} from "@/lib/defaults";
 import type {
   AnswersMap,
   AppData,
+  DecorLevel,
   Option,
   Panel,
+  PanelDecor,
+  PanelTheme,
   Question,
   QuestionType,
   SiteConfig,
+  SiteTexts,
   StoredAnswer,
+  ThemeId,
 } from "@/lib/types";
 
-type Tab = "panels" | "answers" | "texts" | "look";
+type Tab = "panels" | "answers" | "settings";
 type Notice = { kind: "ok" | "error"; text: string } | null;
 
 const TYPE_LABELS: Record<QuestionType, string> = {
@@ -30,7 +40,6 @@ const EMOJIS = [
   "⛵", "⚓", "🌊", "🐚", "🦀", "🐠", "🐙", "🐳", "🐬", "🦭", "🏝️", "🌅",
   "🧭", "🦞", "🍤", "🍹", "🍦", "🌙", "⭐", "🎶", "🎬", "🎲", "📷", "🕯️",
   "💙", "💌", "🥂", "🍽️", "🌴", "🏖️", "🛟", "🐡", "🪸", "🍣", "🍕", "🎮",
-  "🌸", "🌺", "🌷", "🍡", "🍵", "🏮", "🎏", "⛩️", "🗻", "🦋", "🌿", "🌕",
 ];
 
 function uid(): string {
@@ -50,8 +59,11 @@ const blankPanel = (): Panel => ({
   emoji: "🐚",
   description: "",
   published: false,
+  theme: "inherit",
+  decor: "inherit",
+  accent: "",
+  marker: "",
   questions: [blankQuestion()],
-  style: { ...DEFAULT_STYLE },
 });
 
 function move<T>(arr: T[], i: number, dir: -1 | 1): T[] {
@@ -122,6 +134,13 @@ export default function AdminPanel({ initialData, initialAnswers, storage }: Pro
 
   function updateConfig(patch: Partial<SiteConfig>) {
     change((d) => ({ ...d, config: { ...d.config, ...patch } }));
+  }
+
+  function updateText(key: keyof SiteTexts, value: string) {
+    change((d) => ({
+      ...d,
+      config: { ...d.config, texts: { ...d.config.texts, [key]: value } },
+    }));
   }
 
   function addPanel() {
@@ -243,8 +262,7 @@ export default function AdminPanel({ initialData, initialAnswers, storage }: Pro
           [
             ["panels", "Escales"],
             ["answers", `Réponses (${answeredCount})`],
-            ["texts", "Textes"],
-            ["look", "Apparence"],
+            ["settings", "Réglages"],
           ] as [Tab, string][]
         ).map(([key, label]) => (
           <button
@@ -377,21 +395,118 @@ export default function AdminPanel({ initialData, initialAnswers, storage }: Pro
         </div>
       )}
 
-      {/* ---------------------------- TEXTES ---------------------------- */}
-      {tab === "texts" && (
-        <TextsEditor config={data.config} onConfig={updateConfig} />
-      )}
+      {/* ---------------------------- RÉGLAGES ---------------------------- */}
+      {tab === "settings" && (
+        <div className="adm-stack">
+        <div className="adm-card">
+          <h2>Apparence du site</h2>
+          <p className="muted">
+            Réglage par défaut de toutes les pages. Chaque escale peut ensuite
+            avoir son propre thème (onglet Escales).
+          </p>
+          <div className="field">
+            <span>Thème</span>
+            <ThemePicker
+              value={data.config.theme}
+              onChange={(theme) => updateConfig({ theme: theme as ThemeId })}
+            />
+          </div>
+          <div className="field">
+            <span>Intensité des décors (pétales, bulles, étoiles…)</span>
+            <DecorPicker
+              value={data.config.decor}
+              onChange={(decor) => updateConfig({ decor: decor as DecorLevel })}
+            />
+          </div>
+          <div className="field-row">
+            <AccentField
+              label="Couleur des boutons"
+              value={data.config.accent}
+              onChange={(accent) => updateConfig({ accent })}
+            />
+            <label className="field emoji-field">
+              <span>Emoji de l&apos;accueil</span>
+              <input
+                className="in"
+                list="emoji-list"
+                maxLength={16}
+                placeholder={THEMES[data.config.theme].emoji}
+                value={data.config.heroEmoji}
+                onChange={(e) => updateConfig({ heroEmoji: e.target.value })}
+              />
+            </label>
+          </div>
+        </div>
 
-      {/* ---------------------------- APPARENCE ---------------------------- */}
-      {tab === "look" && (
-        <StyleEditor
-          title="Apparence de l'accueil"
-          hint="Chaque escale a aussi sa propre apparence, dans l'onglet Escales."
-          value={data.config.homeStyle}
-          onChange={(patch) =>
-            updateConfig({ homeStyle: { ...data.config.homeStyle, ...patch } })
-          }
-        />
+        <div className="adm-card">
+          <h2>Textes de l&apos;accueil</h2>
+          <label className="field">
+            <span>Titre du site</span>
+            <input
+              className="in"
+              maxLength={60}
+              value={data.config.siteTitle}
+              onChange={(e) => updateConfig({ siteTitle: e.target.value })}
+            />
+          </label>
+          <label className="field">
+            <span>Salutation (ex. « Ahoy, ma moussaillonne ! »)</span>
+            <input
+              className="in"
+              maxLength={80}
+              value={data.config.greeting}
+              onChange={(e) => updateConfig({ greeting: e.target.value })}
+            />
+          </label>
+          <label className="field">
+            <span>Message d&apos;accueil</span>
+            <textarea
+              className="in"
+              rows={4}
+              maxLength={600}
+              value={data.config.introMessage}
+              onChange={(e) => updateConfig({ introMessage: e.target.value })}
+            />
+          </label>
+          <label className="field">
+            <span>Message de fin (affiché quand toutes les escales sont terminées)</span>
+            <textarea
+              className="in"
+              rows={3}
+              maxLength={600}
+              value={data.config.outroMessage}
+              onChange={(e) => updateConfig({ outroMessage: e.target.value })}
+            />
+          </label>
+        </div>
+
+        <div className="adm-card">
+          <h2>Tous les autres textes</h2>
+          <p className="muted">
+            Boutons, messages, compteurs… Laisse un champ vide et il reprend sa
+            valeur d&apos;origine. Dans les textes qui contiennent{" "}
+            <code>{"{n}"}</code> ou <code>{"{i}"}</code>, ces repères sont
+            remplacés par les vrais nombres.
+          </p>
+          {Array.from(new Set(TEXT_FIELDS.map((f) => f.group))).map((group) => (
+            <fieldset className="tgroup" key={group}>
+              <legend>{group}</legend>
+              {TEXT_FIELDS.filter((f) => f.group === group).map((f) => (
+                <label className="field" key={f.key}>
+                  <span>{f.label}</span>
+                  <input
+                    className="in"
+                    maxLength={200}
+                    placeholder={DEFAULT_TEXTS[f.key]}
+                    value={data.config.texts[f.key]}
+                    onChange={(e) => updateText(f.key, e.target.value)}
+                  />
+                </label>
+              ))}
+            </fieldset>
+          ))}
+        </div>
+        </div>
       )}
 
       {/* ---------------------------- BARRE D'ENREGISTREMENT ---------------------------- */}
@@ -412,6 +527,114 @@ export default function AdminPanel({ initialData, initialAnswers, storage }: Pro
 }
 
 /* -------------------------------------------------------------------------- */
+
+function ThemePicker({
+  value,
+  onChange,
+  allowInherit = false,
+}: {
+  value: ThemeId | "inherit";
+  onChange: (v: ThemeId | "inherit") => void;
+  allowInherit?: boolean;
+}) {
+  return (
+    <div className="pick" role="radiogroup">
+      {allowInherit && (
+        <button
+          type="button"
+          role="radio"
+          aria-checked={value === "inherit"}
+          className={value === "inherit" ? "pick-btn on" : "pick-btn"}
+          onClick={() => onChange("inherit")}
+        >
+          <span className="pe">↩️</span>
+          <span>
+            Comme le site
+            <small>réglage par défaut</small>
+          </span>
+        </button>
+      )}
+      {THEME_IDS.map((id) => (
+        <button
+          key={id}
+          type="button"
+          role="radio"
+          aria-checked={value === id}
+          className={value === id ? "pick-btn on" : "pick-btn"}
+          onClick={() => onChange(id)}
+        >
+          <span className="pe">{THEMES[id].emoji}</span>
+          <span>
+            {THEMES[id].label}
+            <small>{THEMES[id].description}</small>
+          </span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function DecorPicker({
+  value,
+  onChange,
+  allowInherit = false,
+}: {
+  value: DecorLevel | "inherit";
+  onChange: (v: DecorLevel | "inherit") => void;
+  allowInherit?: boolean;
+}) {
+  const options: [DecorLevel | "inherit", string][] = [
+    ...(allowInherit ? ([["inherit", "Comme le site"]] as [DecorLevel | "inherit", string][]) : []),
+    ...DECOR_IDS.map((id): [DecorLevel | "inherit", string] => [id, DECOR_LABELS[id]]),
+  ];
+  return (
+    <div className="pick small" role="radiogroup">
+      {options.map(([id, label]) => (
+        <button
+          key={id}
+          type="button"
+          role="radio"
+          aria-checked={value === id}
+          className={value === id ? "pick-btn on" : "pick-btn"}
+          onClick={() => onChange(id)}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function AccentField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="field grow">
+      <span>{label}</span>
+      <div className="accent-row">
+        <input
+          type="color"
+          className="color-in"
+          aria-label={label}
+          value={value || "#ff7a6b"}
+          onChange={(e) => onChange(e.target.value)}
+        />
+        <span className="muted">{value || "par défaut du thème"}</span>
+        {value && (
+          <button type="button" className="btn secondary small" onClick={() => onChange("")}>
+            Réinitialiser
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function PanelEditor({
   panel,
@@ -469,6 +692,41 @@ function PanelEditor({
           />
         </label>
 
+        <div className="field">
+          <span>Thème de cette escale</span>
+          <ThemePicker
+            value={panel.theme}
+            allowInherit
+            onChange={(theme) => onPanel((p) => ({ ...p, theme: theme as PanelTheme }))}
+          />
+        </div>
+        <div className="field">
+          <span>Intensité du décor</span>
+          <DecorPicker
+            value={panel.decor}
+            allowInherit
+            onChange={(decor) => onPanel((p) => ({ ...p, decor: decor as PanelDecor }))}
+          />
+        </div>
+        <div className="field-row">
+          <AccentField
+            label="Couleur des boutons (vide = celle du site)"
+            value={panel.accent}
+            onChange={(accent) => onPanel((p) => ({ ...p, accent }))}
+          />
+          <label className="field emoji-field">
+            <span>Emoji de progression</span>
+            <input
+              className="in"
+              list="emoji-list"
+              maxLength={16}
+              placeholder="auto"
+              value={panel.marker}
+              onChange={(e) => onPanel((p) => ({ ...p, marker: e.target.value }))}
+            />
+          </label>
+        </div>
+
         <label className="check">
           <input
             type="checkbox"
@@ -493,49 +751,6 @@ function PanelEditor({
           <small className="muted"> (enregistre d&apos;abord pour voir tes dernières modifs)</small>
         )}
       </div>
-
-      <div className="adm-card">
-        <h2>Textes de cette escale</h2>
-        <p className="muted">
-          Facultatif. Vide = on utilise les textes généraux (onglet Textes).
-        </p>
-        <label className="field">
-          <span>Petit mot affiché avant la première question</span>
-          <textarea
-            className="in"
-            rows={2}
-            maxLength={300}
-            value={panel.intro ?? ""}
-            onChange={(e) => onPanel((p) => ({ ...p, intro: e.target.value }))}
-            placeholder="Ex. Ferme les yeux : on est sous les cerisiers en fleurs 🌸"
-          />
-        </label>
-        <label className="field">
-          <span>Titre de fin d&apos;escale</span>
-          <input
-            className="in"
-            maxLength={80}
-            value={panel.doneTitle ?? ""}
-            onChange={(e) => onPanel((p) => ({ ...p, doneTitle: e.target.value }))}
-          />
-        </label>
-        <label className="field">
-          <span>Message de fin d&apos;escale</span>
-          <textarea
-            className="in"
-            rows={2}
-            maxLength={300}
-            value={panel.doneMessage ?? ""}
-            onChange={(e) => onPanel((p) => ({ ...p, doneMessage: e.target.value }))}
-          />
-        </label>
-      </div>
-
-      <StyleEditor
-        title="Apparence de cette escale"
-        value={panel.style}
-        onChange={(patch) => onPanel((p) => ({ ...p, style: { ...p.style, ...patch } }))}
-      />
 
       {panel.questions.map((q, i) => (
         <QuestionEditor

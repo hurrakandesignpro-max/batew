@@ -1,25 +1,25 @@
 import Link from "next/link";
-import Scene from "@/components/Scene";
+import ThemeShell from "@/components/ThemeShell";
+import { fill, resolveLook, THEMES } from "@/lib/defaults";
 import { isPanelDone } from "@/lib/progress";
-import { mascotOf } from "@/lib/style";
 import { getAnswers, getData } from "@/lib/store";
-import { fmt } from "@/lib/texts";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const [data, answers] = await Promise.all([getData(), getAnswers()]);
   const { config } = data;
-  const t = config.texts;
+  const { texts } = config;
+  const look = resolveLook(config);
   const panels = data.panels.filter((p) => p.published && p.questions.length > 0);
   const allDone = panels.length > 0 && panels.every((p) => isPanelDone(p, answers));
 
   return (
-    <Scene style={config.homeStyle}>
+    <ThemeShell {...look}>
       <main className="page">
         <header className="hero">
           <span className="boat" aria-hidden="true">
-            {mascotOf(config.homeStyle)}
+            {config.heroEmoji || THEMES[look.theme].emoji}
           </span>
           <h1>{config.siteTitle}</h1>
           <p className="greeting">{config.greeting}</p>
@@ -29,10 +29,10 @@ export default async function Home() {
         </header>
 
         {panels.length === 0 ? (
-          <p className="bubble center">{t.emptyMessage}</p>
+          <p className="bubble center">{texts.homeEmpty}</p>
         ) : (
           <>
-            {t.mapTitle && <h2 className="section-title">{t.mapTitle}</h2>}
+            <h2 className="section-title">{texts.homeTitle}</h2>
             <nav className="escales" aria-label="Escales">
               {panels.map((panel) => {
                 const done = isPanelDone(panel, answers);
@@ -52,8 +52,10 @@ export default async function Home() {
                     </span>
                     <span className={`chip ${done ? "done" : ""}`}>
                       {done
-                        ? t.chipDone
-                        : fmt(n > 1 ? t.chipMany : t.chipOne, { n })}
+                        ? texts.chipDone
+                        : n === 1
+                          ? texts.chipOne
+                          : fill(texts.chipMany, { n })}
                     </span>
                   </Link>
                 );
@@ -68,10 +70,10 @@ export default async function Home() {
 
         <footer className="foot">
           <Link href="/admin" aria-label="Espace du capitaine">
-            {t.footerSymbol}
+            ⚓
           </Link>
         </footer>
       </main>
-    </Scene>
+    </ThemeShell>
   );
 }

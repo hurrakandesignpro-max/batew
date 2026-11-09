@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Quiz from "@/components/Quiz";
-import Scene from "@/components/Scene";
+import ThemeShell from "@/components/ThemeShell";
 import { isAdmin } from "@/lib/auth";
-import { mascotOf } from "@/lib/style";
+import { resolveLook, THEMES } from "@/lib/defaults";
 import { getAnswers, getData } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +15,6 @@ export default async function EscalePage({
 }) {
   const { id } = await params;
   const [data, answers] = await Promise.all([getData(), getAnswers()]);
-  const t = data.config.texts;
 
   const panel = data.panels.find((p) => p.id === id);
   if (!panel) notFound();
@@ -30,26 +29,34 @@ export default async function EscalePage({
     if (stored) initial[q.id] = stored.value;
   }
 
+  const look = resolveLook(data.config, panel);
+  const marker = panel.marker || THEMES[look.theme].emoji;
+  const { texts } = data.config;
+
   return (
-    <Scene style={panel.style}>
+    <ThemeShell {...look}>
       <main className="page">
         <div className="topbar">
           <Link href="/" className="back">
-            {t.backLink}
+            {texts.backLink}
           </Link>
           <span className="topbar-title">
             {panel.emoji} {panel.title}
           </span>
         </div>
-        {preview && <p className="bubble preview-note">{t.previewNote}</p>}
+        {preview && (
+          <p className="bubble preview-note">
+            🔍 Aperçu du brouillon : rien n&apos;est enregistré.
+          </p>
+        )}
         <Quiz
           panel={panel}
           initial={initial}
           preview={preview}
-          texts={t}
-          mascot={mascotOf(panel.style)}
+          texts={texts}
+          marker={marker}
         />
       </main>
-    </Scene>
+    </ThemeShell>
   );
 }

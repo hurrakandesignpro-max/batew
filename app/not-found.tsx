@@ -1,32 +1,23 @@
 import Link from "next/link";
-import Scene from "@/components/Scene";
-import { mascotOf } from "@/lib/style";
-import { seedData } from "@/lib/seed";
-import { getData } from "@/lib/store";
+import ThemeShell from "@/components/ThemeShell";
 
-export default async function NotFound() {
-  let config = seedData.config;
-  try {
-    config = (await getData()).config;
-  } catch {
-    // on garde les textes par défaut
-  }
-  const t = config.texts;
-
+export default function NotFound() {
   return (
-    <Scene style={config.homeStyle}>
+    <ThemeShell theme="sea" decor="normal">
       <main className="page">
         <div className="hero">
-          <span className="boat" aria-hidden="true">
-            {config.homeStyle.mascot ? mascotOf(config.homeStyle) : "🛟"}
+          <span className="boat" role="img" aria-label="Bouée">
+            🛟
           </span>
-          <h1>{t.notFoundTitle}</h1>
-          <p className="bubble">{t.notFoundMessage}</p>
+          <h1>Cette mer n&apos;existe pas</h1>
+          <p className="bubble">
+            On a dû se tromper de cap… Reviens à la carte, on repart de zéro 🧭
+          </p>
           <Link href="/" className="btn">
-            {t.notFoundButton}
+            Retour à la carte
           </Link>
         </div>
       </main>
-    </Scene>
+    </ThemeShell>
   );
 }

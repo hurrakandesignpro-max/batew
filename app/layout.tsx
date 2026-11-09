@@ -1,23 +1,20 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { seedData } from "@/lib/seed";
-import { mascotOf } from "@/lib/style";
 import { getData } from "@/lib/store";
 
 export async function generateMetadata(): Promise<Metadata> {
-  let config = seedData.config;
+  let title = "Escale à deux";
   try {
-    config = (await getData()).config;
+    title = (await getData()).config.siteTitle;
   } catch {
-    // on garde les valeurs par défaut
+    // on garde le titre par défaut
   }
-  const mascot = mascotOf(config.homeStyle);
   return {
-    title: `${config.siteTitle} ${mascot}`,
-    description: config.texts.metaDescription,
+    title: `${title} ⚓`,
+    description: "Une petite escale rien que pour nous deux.",
     robots: { index: false, follow: false },
     icons: {
-      icon: `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${encodeURIComponent(mascot)}</text></svg>`,
+      icon: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⛵</text></svg>",
     },
   };
 }
