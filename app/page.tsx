@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Scene from "@/components/Scene";
-import EndAnimation from "@/components/EndAnimation";
 import { isPanelDone } from "@/lib/progress";
 import { mascotOf } from "@/lib/style";
 import { getAnswers, getData } from "@/lib/store";
@@ -64,11 +63,7 @@ export default async function Home() {
         )}
 
         {allDone && config.outroMessage && (
-          <EndAnimation
-            message={config.outroMessage}
-            theme={config.homeStyle.theme}
-            mascot={mascotOf(config.homeStyle)}
-          />
+          <p className="bubble center outro">{config.outroMessage}</p>
         )}
 
         <footer className="foot">

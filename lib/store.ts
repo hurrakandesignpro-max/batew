@@ -7,7 +7,7 @@ import type { AnswersMap, AppData } from "./types";
 
 /**
  * Trois modes de stockage, choisis automatiquement :
- * - "redis"  : Upstash Redis (variables KV_REST_API_*, UPSTASH_REDIS_REST_* ou STORAGE_KV_REST_API_*)
+ * - "redis"  : Upstash Redis (variables KV_REST_API_* ou STORAGE_KV_REST_API_* ou UPSTASH_REDIS_REST_*)
  * - "file"   : fichier .data/db.json (développement local)
  * - "memory" : mémoire du serveur, NON durable (Vercel sans Redis connecté)
  */
@@ -21,6 +21,8 @@ let redisClient: Redis | null | undefined;
 
 function redis(): Redis | null {
   if (redisClient !== undefined) return redisClient;
+  // Vercel Upstash integration injecte les variables avec le préfixe STORAGE_KV_
+  // quand plusieurs bases sont connectées. On accepte les trois formes.
   const url =
     process.env.STORAGE_KV_REST_API_URL ||
     process.env.KV_REST_API_URL ||
