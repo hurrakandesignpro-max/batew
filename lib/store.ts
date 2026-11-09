@@ -7,7 +7,7 @@ import type { AnswersMap, AppData } from "./types";
 
 /**
  * Trois modes de stockage, choisis automatiquement :
- * - "redis"  : Upstash Redis (variables KV_REST_API_* ou UPSTASH_REDIS_REST_*)
+ * - "redis"  : Upstash Redis (variables KV_REST_API_*, UPSTASH_REDIS_REST_* ou STORAGE_KV_REST_API_*)
  * - "file"   : fichier .data/db.json (développement local)
  * - "memory" : mémoire du serveur, NON durable (Vercel sans Redis connecté)
  */
@@ -21,9 +21,14 @@ let redisClient: Redis | null | undefined;
 
 function redis(): Redis | null {
   if (redisClient !== undefined) return redisClient;
-  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+  const url =
+    process.env.STORAGE_KV_REST_API_URL ||
+    process.env.KV_REST_API_URL ||
+    process.env.UPSTASH_REDIS_REST_URL;
   const token =
-    process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+    process.env.STORAGE_KV_REST_API_TOKEN ||
+    process.env.KV_REST_API_TOKEN ||
+    process.env.UPSTASH_REDIS_REST_TOKEN;
   redisClient = url && token ? new Redis({ url, token }) : null;
   return redisClient;
 }
