@@ -548,6 +548,286 @@ code {
 }
 
 /* ------------------------------------------------------------------ */
+/* Fin d'escale : animation + surprise cachée                         */
+/* ------------------------------------------------------------------ */
+
+.qcard.done {
+  position: relative;
+  overflow: hidden;
+}
+
+.finale {
+  position: relative;
+}
+
+.finale > :not(.fx-burst):not(.egg-fly) {
+  position: relative;
+  z-index: 1;
+}
+
+.finale-mascot {
+  animation: mascot-hop 0.9s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+
+@keyframes mascot-hop {
+  0% {
+    transform: translateY(30px) scale(0.3) rotate(-12deg);
+    opacity: 0;
+  }
+  70% {
+    transform: translateY(-8px) scale(1.12) rotate(4deg);
+    opacity: 1;
+  }
+  100% {
+    transform: none;
+  }
+}
+
+.confirm-pill {
+  display: inline-block;
+  margin: 12px 0 0;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #dff6e6;
+  color: #1d6b3a;
+  font-weight: 700;
+  font-size: 0.9rem;
+  animation: pop 0.45s 0.5s ease both;
+}
+
+.fx-burst {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.fx-burst span {
+  position: absolute;
+  opacity: 0;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+  animation-iteration-count: 1;
+}
+
+.fx-burst.fall span {
+  top: -10%;
+  animation-name: fx-fall;
+}
+
+.fx-burst.rise span {
+  bottom: -10%;
+  animation-name: fx-rise;
+}
+
+@keyframes fx-fall {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--drift), 480px) rotate(300deg);
+    opacity: 0;
+  }
+}
+
+@keyframes fx-rise {
+  0% {
+    transform: translate(0, 0) scale(0.6);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--drift), -480px) scale(1.1);
+    opacity: 0;
+  }
+}
+
+.egg-zone {
+  margin-top: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.egg {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  font-size: 1.8rem;
+  line-height: 1;
+  padding: 6px 10px;
+  cursor: pointer;
+  opacity: 0.6;
+  animation: egg-wiggle 2.8s ease-in-out infinite;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.egg:hover,
+.egg:focus-visible {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.egg:active {
+  transform: scale(0.9);
+}
+
+@keyframes egg-wiggle {
+  0%,
+  80%,
+  100% {
+    transform: rotate(0);
+  }
+  86% {
+    transform: rotate(-14deg);
+  }
+  92% {
+    transform: rotate(12deg);
+  }
+}
+
+.egg-hint {
+  opacity: 0.65;
+  font-size: 0.78rem;
+}
+
+.egg-message {
+  margin: 14px auto 0;
+  max-width: 28em;
+  animation: pop 0.4s ease both;
+}
+
+.egg-fly {
+  position: absolute;
+  pointer-events: none;
+  font-size: 3.4rem;
+  line-height: 1;
+  z-index: 2;
+  opacity: 0;
+  animation-fill-mode: forwards;
+  animation-iteration-count: 1;
+}
+
+/* mer : la baleine traverse la carte */
+.egg-fly.swim {
+  bottom: 18%;
+  left: -20%;
+  animation: egg-swim 3.2s ease-in-out;
+}
+
+@keyframes egg-swim {
+  0% {
+    transform: translate(0, 30px) rotate(10deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  50% {
+    transform: translate(70vw, -40px) rotate(-12deg);
+  }
+  100% {
+    transform: translate(140vw, 20px) rotate(8deg);
+    opacity: 0;
+  }
+}
+
+/* coucher de soleil : le soleil se lève, clignote en vert, redescend */
+.egg-fly.sun {
+  left: 50%;
+  bottom: -20%;
+  margin-left: -1.7rem;
+  animation: egg-sun 3s ease-in-out;
+  filter: drop-shadow(0 0 18px #ffb347);
+}
+
+@keyframes egg-sun {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  30% {
+    transform: translateY(-260px);
+    opacity: 1;
+  }
+  60% {
+    transform: translateY(-300px) scale(1.15);
+    opacity: 1;
+    filter: drop-shadow(0 0 22px #5dff8a) hue-rotate(80deg);
+  }
+  100% {
+    transform: translateY(-120px) scale(0.8);
+    opacity: 0;
+  }
+}
+
+/* sakura : la fleur tourbillonne et s'envole */
+.egg-fly.petals {
+  left: 50%;
+  top: 40%;
+  margin-left: -1.7rem;
+  animation: egg-petals 2.6s ease-out;
+}
+
+@keyframes egg-petals {
+  0% {
+    transform: scale(0.2) rotate(0);
+    opacity: 0;
+  }
+  30% {
+    transform: scale(1.5) rotate(180deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-220px) scale(0.6) rotate(540deg);
+    opacity: 0;
+  }
+}
+
+/* nuit : étoile filante en diagonale */
+.egg-fly.shoot {
+  top: -5%;
+  right: -5%;
+  animation: egg-shoot 1.8s ease-in;
+  filter: drop-shadow(0 0 12px #fff8c4);
+}
+
+@keyframes egg-shoot {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-90vw, 70vh);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .finale-mascot,
+  .confirm-pill,
+  .egg,
+  .egg-message {
+    animation: none;
+  }
+  .fx-burst,
+  .egg-fly {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* Décor : vagues et bulles                                           */
 /* ------------------------------------------------------------------ */
 

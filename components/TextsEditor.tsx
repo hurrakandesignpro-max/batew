@@ -118,6 +118,7 @@ export default function TextsEditor({
       {TEXT_GROUPS.map((group) => (
         <div className="adm-card" key={group.id}>
           <h2>{group.title}</h2>
+          {group.intro && <p className="muted">{group.intro}</p>}
           {TEXT_FIELDS.filter((f) => f.group === group.id).map((f) => (
             <TextRow
               key={f.key}

@@ -48,6 +48,7 @@ export default async function EscalePage({
           preview={preview}
           texts={t}
           mascot={mascotOf(panel.style)}
+          theme={panel.style.theme}
         />
       </main>
     </Scene>

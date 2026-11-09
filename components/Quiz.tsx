@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import { fmt } from "@/lib/texts";
-import type { Panel, Question, SiteTexts } from "@/lib/types";
+import Finale from "@/components/Finale";
+import type { Panel, Question, SiteTexts, ThemeId } from "@/lib/types";
 
 type Answers = Record<string, string[] | string>;
 
@@ -14,6 +15,8 @@ interface Props {
   texts: SiteTexts;
   /** Emoji de la barre de progression et de la fin d'escale. */
   mascot: string;
+  /** Thème de l'escale : choisit l'animation et la surprise de fin. */
+  theme: ThemeId;
 }
 
 function isAnswered(q: Question, answers: Answers): boolean {
@@ -22,7 +25,7 @@ function isAnswered(q: Question, answers: Answers): boolean {
   return Array.isArray(a) && a.length > 0;
 }
 
-export default function Quiz({ panel, initial, preview, texts, mascot }: Props) {
+export default function Quiz({ panel, initial, preview, texts, mascot, theme }: Props) {
   const [answers, setAnswers] = useState<Answers>(initial);
   const [index, setIndex] = useState(0);
   const [done, setDone] = useState(false);
@@ -39,15 +42,16 @@ export default function Quiz({ panel, initial, preview, texts, mascot }: Props) 
   if (done) {
     return (
       <section className="qcard done" aria-live="polite">
-        <div className="big" aria-hidden="true">
-          {mascot}
-        </div>
-        <h2>{panel.doneTitle || texts.doneTitle}</h2>
-        {(preview ? texts.donePreview : panel.doneMessage || texts.doneMessage) && (
-          <p className="muted">
-            {preview ? texts.donePreview : panel.doneMessage || texts.doneMessage}
-          </p>
-        )}
+        <Finale
+          theme={theme}
+          mascot={mascot}
+          texts={texts}
+          preview={preview}
+          title={panel.doneTitle || texts.doneTitle}
+          message={
+            preview ? texts.donePreview : panel.doneMessage || texts.doneMessage
+          }
+        />
         <Link href="/" className="btn">
           {texts.doneButton}
         </Link>

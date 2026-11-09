@@ -7,7 +7,7 @@
  *   {n}  → nombre de questions   {current} / {total} → numéro de question
  */
 
-export type TextGroup = "home" | "quiz" | "done" | "notfound" | "share";
+export type TextGroup = "home" | "quiz" | "done" | "egg" | "notfound" | "share";
 
 export interface TextField {
   key: string;
@@ -176,6 +176,15 @@ const FIELDS = [
     max: 80,
   },
   {
+    key: "doneConfirm",
+    group: "done",
+    label: "Petite confirmation d'envoi (pastille verte)",
+    def: "✓ Tes réponses sont bien envoyées",
+    max: 60,
+    optional: true,
+    hint: "Laisse vide pour masquer. Pas affichée dans l'aperçu d'un brouillon.",
+  },
+  {
     key: "doneMessage",
     group: "done",
     label: "Message quand une escale est terminée",
@@ -198,6 +207,108 @@ const FIELDS = [
     label: "Bouton de fin d'escale",
     def: "Retour à la carte",
     max: 40,
+  },
+
+  // ----------------------- Fin d'escale : surprises -----------------------
+  {
+    key: "eggSeaEmoji",
+    group: "egg",
+    label: "Mer : petit emoji caché",
+    def: "🐳",
+    max: 16,
+    hint: "Celui sur lequel elle peut cliquer. Il s'anime à l'écran quand elle le touche.",
+  },
+  {
+    key: "eggSeaHint",
+    group: "egg",
+    label: "Mer : petit indice sous l'emoji",
+    def: "Psst… touche la petite baleine 🐳",
+    max: 80,
+    optional: true,
+    hint: "Laisse vide pour masquer l'indice (l'emoji reste cliquable).",
+  },
+  {
+    key: "eggSeaMessage",
+    group: "egg",
+    label: "Mer : message de la surprise",
+    def: "Une baleine est passée te dire merci 🐳💙",
+    max: 200,
+    multiline: true,
+  },
+  {
+    key: "eggSakuraEmoji",
+    group: "egg",
+    label: "Sakura : petit emoji caché",
+    def: "🌸",
+    max: 16,
+    hint: "Celui sur lequel elle peut cliquer. Il s'anime à l'écran quand elle le touche.",
+  },
+  {
+    key: "eggSakuraHint",
+    group: "egg",
+    label: "Sakura : petit indice sous l'emoji",
+    def: "Psst… touche la petite fleur 🌸",
+    max: 80,
+    optional: true,
+    hint: "Laisse vide pour masquer l'indice (l'emoji reste cliquable).",
+  },
+  {
+    key: "eggSakuraMessage",
+    group: "egg",
+    label: "Sakura : message de la surprise",
+    def: "Fais un vœu, les pétales l'emporteront 🌸",
+    max: 200,
+    multiline: true,
+  },
+  {
+    key: "eggSunsetEmoji",
+    group: "egg",
+    label: "Coucher de soleil : petit emoji caché",
+    def: "🌅",
+    max: 16,
+    hint: "Celui sur lequel elle peut cliquer. Il s'anime à l'écran quand elle le touche.",
+  },
+  {
+    key: "eggSunsetHint",
+    group: "egg",
+    label: "Coucher de soleil : petit indice sous l'emoji",
+    def: "Psst… touche le petit soleil 🌅",
+    max: 80,
+    optional: true,
+    hint: "Laisse vide pour masquer l'indice (l'emoji reste cliquable).",
+  },
+  {
+    key: "eggSunsetMessage",
+    group: "egg",
+    label: "Coucher de soleil : message de la surprise",
+    def: "Chut… j'ai vu le rayon vert. C'est pour nous 💚",
+    max: 200,
+    multiline: true,
+  },
+  {
+    key: "eggNightEmoji",
+    group: "egg",
+    label: "Nuit étoilée : petit emoji caché",
+    def: "🌠",
+    max: 16,
+    hint: "Celui sur lequel elle peut cliquer. Il s'anime à l'écran quand elle le touche.",
+  },
+  {
+    key: "eggNightHint",
+    group: "egg",
+    label: "Nuit étoilée : petit indice sous l'emoji",
+    def: "Psst… touche la petite étoile 🌠",
+    max: 80,
+    optional: true,
+    hint: "Laisse vide pour masquer l'indice (l'emoji reste cliquable).",
+  },
+  {
+    key: "eggNightMessage",
+    group: "egg",
+    label: "Nuit étoilée : message de la surprise",
+    def: "Une étoile filante ! Fais un vœu 🌠",
+    max: 200,
+    multiline: true,
   },
 
   // ----------------------------- Page introuvable -----------------------------
@@ -248,6 +359,12 @@ export const TEXT_GROUPS: { id: TextGroup; title: string; intro?: string }[] = [
   { id: "home", title: "Accueil : carte des escales" },
   { id: "quiz", title: "Questionnaire : boutons, compteur, messages" },
   { id: "done", title: "Fin d'une escale" },
+  {
+    id: "egg",
+    title: "Fin d'escale : surprise cachée (selon le thème de l'escale)",
+    intro:
+      "Quand elle finit une escale, une petite animation se lance. Elle peut aussi toucher l'emoji caché pour une surprise différente selon le thème de l'escale.",
+  },
   { id: "notfound", title: "Page introuvable (erreur 404)" },
   { id: "share", title: "Partage du lien" },
 ];
