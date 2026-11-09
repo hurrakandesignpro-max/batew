@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Quiz from "@/components/Quiz";
-import ThemeShell from "@/components/ThemeShell";
+import Scene from "@/components/Scene";
 import { isAdmin } from "@/lib/auth";
-import { resolveLook, THEMES } from "@/lib/defaults";
+import { mascotOf } from "@/lib/style";
 import { getAnswers, getData } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -15,6 +15,7 @@ export default async function EscalePage({
 }) {
   const { id } = await params;
   const [data, answers] = await Promise.all([getData(), getAnswers()]);
+  const t = data.config.texts;
 
   const panel = data.panels.find((p) => p.id === id);
   if (!panel) notFound();
@@ -29,34 +30,26 @@ export default async function EscalePage({
     if (stored) initial[q.id] = stored.value;
   }
 
-  const look = resolveLook(data.config, panel);
-  const marker = panel.marker || THEMES[look.theme].emoji;
-  const { texts } = data.config;
-
   return (
-    <ThemeShell {...look}>
+    <Scene style={panel.style}>
       <main className="page">
         <div className="topbar">
           <Link href="/" className="back">
-            {texts.backLink}
+            {t.backLink}
           </Link>
           <span className="topbar-title">
             {panel.emoji} {panel.title}
           </span>
         </div>
-        {preview && (
-          <p className="bubble preview-note">
-            🔍 Aperçu du brouillon : rien n&apos;est enregistré.
-          </p>
-        )}
+        {preview && <p className="bubble preview-note">{t.previewNote}</p>}
         <Quiz
           panel={panel}
           initial={initial}
           preview={preview}
-          texts={texts}
-          marker={marker}
+          texts={t}
+          mascot={mascotOf(panel.style)}
         />
       </main>
-    </ThemeShell>
+    </Scene>
   );
 }

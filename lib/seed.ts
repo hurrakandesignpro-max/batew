@@ -1,5 +1,11 @@
-import { DEFAULT_TEXTS } from "./defaults";
-import type { AppData } from "./types";
+import { DEFAULT_STYLE } from "./style";
+import { DEFAULT_TEXTS } from "./texts";
+import type { AppData, PageStyle } from "./types";
+
+const style = (patch: Partial<PageStyle> = {}): PageStyle => ({
+  ...DEFAULT_STYLE,
+  ...patch,
+});
 
 /**
  * Contenu de départ, utilisé tant que rien n'a été enregistré depuis /admin.
@@ -13,11 +19,8 @@ export const seedData: AppData = {
       "J'ai préparé une petite surprise… Réponds à quelques questions pour qu'on choisisse ensemble notre prochaine escale. Il n'y a pas de mauvaise réponse, juste des idées pour passer un beau moment 💙",
     outroMessage:
       "Toutes les escales sont terminées ! J'ai tout noté, je prépare la suite du voyage… 🌅",
-    heroEmoji: "",
-    theme: "sea",
-    decor: "normal",
-    accent: "",
     texts: { ...DEFAULT_TEXTS },
+    homeStyle: style(),
   },
   panels: [
     {
@@ -26,10 +29,7 @@ export const seedData: AppData = {
       emoji: "🧭",
       description: "Où met-on les voiles ?",
       published: true,
-      theme: "inherit",
-      decor: "inherit",
-      accent: "",
-      marker: "",
+      style: style(),
       questions: [
         {
           id: "cap-1",
@@ -73,10 +73,7 @@ export const seedData: AppData = {
       emoji: "🦞",
       description: "Parce qu'un bon équipage mange bien.",
       published: true,
-      theme: "inherit",
-      decor: "inherit",
-      accent: "",
-      marker: "",
+      style: style({ theme: "sunset" }),
       questions: [
         {
           id: "gourm-1",
@@ -114,10 +111,7 @@ export const seedData: AppData = {
       emoji: "🌙",
       description: "Quand la mer est calme et la lune est haute.",
       published: true,
-      theme: "night",
-      decor: "inherit",
-      accent: "",
-      marker: "",
+      style: style({ theme: "night" }),
       questions: [
         {
           id: "soir-1",
@@ -150,42 +144,39 @@ export const seedData: AppData = {
       ],
     },
     {
-      id: "cerisiers",
+      id: "sakura",
       title: "Sous les cerisiers",
       emoji: "🌸",
-      description: "Une parenthèse douce et fleurie.",
+      description: "Un hanami rien qu'à nous deux.",
       published: true,
-      theme: "sakura",
-      decor: "inherit",
-      accent: "",
-      marker: "",
+      style: style({ theme: "sakura", trees: "both" }),
+      intro: "Ferme les yeux : on est au Japon, sous les cerisiers en fleurs 🌸",
       questions: [
         {
-          id: "cer-1",
-          text: "Pique-nique ou thé ?",
+          id: "sak-1",
+          text: "Ton hanami idéal ?",
+          type: "single",
+          options: [
+            { id: "a", label: "Pique-nique sous les fleurs", emoji: "🧺" },
+            { id: "b", label: "Thé et douceurs japonaises", emoji: "🍵" },
+            { id: "c", label: "Balade au milieu des lanternes", emoji: "🏮" },
+            { id: "d", label: "Séance photo", emoji: "📷" },
+          ],
+        },
+        {
+          id: "sak-2",
+          text: "Matcha ou thé au jasmin ?",
           type: "duel",
           options: [
-            { id: "a", label: "Pique-nique", emoji: "🧺" },
-            { id: "b", label: "Thé et pâtisseries", emoji: "🍵" },
+            { id: "a", label: "Matcha", emoji: "🍵" },
+            { id: "b", label: "Jasmin", emoji: "🌼" },
           ],
         },
         {
-          id: "cer-2",
-          text: "Pour une escapade fleurie, tu aimerais…",
-          type: "multi",
-          hint: "Plusieurs choix possibles.",
-          options: [
-            { id: "a", label: "Admirer les fleurs", emoji: "🌸" },
-            { id: "b", label: "Faire des photos", emoji: "📷" },
-            { id: "c", label: "Un petit rituel japonais (thé, origami…)", emoji: "🎎" },
-            { id: "d", label: "Goûter des douceurs (mochi, dango…)", emoji: "🍡" },
-            { id: "e", label: "Une playlist toute douce", emoji: "🎶" },
-          ],
-        },
-        {
-          id: "cer-3",
-          text: "Un lieu ou un souvenir qui te fait rêver ?",
+          id: "sak-3",
+          text: "Un souhait à accrocher à une branche ?",
           type: "text",
+          hint: "Comme sur les petits papiers des temples.",
           options: [],
         },
       ],
